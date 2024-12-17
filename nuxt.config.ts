@@ -27,14 +27,11 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
   modules: [
-    "@nuxt/ui",
     "@nuxtjs/tailwindcss",
     "@nuxtjs/google-fonts",
     "@nuxt/icon",
     "@nuxt/image",
   ],
-
-  extends: ['@nuxt/ui-pro'],
 
   googleFonts: {
     families: {
