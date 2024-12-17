@@ -1,9 +1,8 @@
 <script setup lang="ts">
-const MAX_POKEMON = 151;
+import { getAllPokemons } from '~~/store/pokemon';
+import { type Pokemon } from '~~/types';
 
-const all_pokemons = [];
-
-
+const pokemons = ref<Pokemon[]>(await getAllPokemons());
 </script>
 
 <template>
@@ -49,6 +48,20 @@ const all_pokemons = [];
         </div>
         <div class="not-found-message">
           Pokemon not found
+        </div>
+        <div v-for="pokemon in pokemons" >
+          <div class="number-wrap">
+            <p class="caption-fonts">{{ pokemon.url.split("/")[6] }}</p>
+          </div>
+          <div class="img-wrap">
+            <img
+              :src="`https://raw.githubusercontent.com/pokeapi/sprites/master/sprites/pokemon/other/dream-world/${pokemon.url.split('/')[6]}.svg`"
+              :alt="pokemon.name"
+            >
+          </div>
+          <div class="name-wrap">
+            <p class="body3-fonts">{{ pokemon.name }}</p>
+          </div>
         </div>
       </section>
     </main>
