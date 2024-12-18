@@ -6,3 +6,14 @@ export const getAllPokemons = async() => {
     
     return response.results;
 }
+
+export const getPokemon = async(id: number) => {
+    const pokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then(res => res.json());
+    const pokemonSpecies = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`).then(res => res.json());
+    
+    console.log(pokemon);
+    return {
+        pokemon,
+        pokemonSpecies
+    };
+}

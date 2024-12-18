@@ -1,5 +1,11 @@
 <script setup lang="ts">
+import { getPokemon } from '~~/store/pokemon';
+import type { PokemonData } from '~~/types';
+import { useRoute } from 'vue-router';
 
+const id = ref<number>(parseInt(useRoute().path.split('/')[2]!));
+const pokemon = ref(getPokemon(id.value));
+console.log(pokemon);
 </script>
 
 <template>
@@ -34,12 +40,12 @@
             <div class="">
                 <img src="" alt="">
             </div>
-            <a href="#" class="">
+            <div @click="navigateTo(`pokemon/${id+1}`)" class="">
                 <img
                     src="../../img/chevron_right.svg"
                     alt="forward"
                 >
-            </a>
+            </div>
         </div>
         <div class="">
             <div class="">
