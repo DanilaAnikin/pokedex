@@ -9,11 +9,10 @@ export const getAllPokemons = async() => {
 
 export const getPokemon = async(id: number) => {
     const pokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then(res => res.json());
+    return pokemon;
+}
+
+export const getSpecies = async(id: number) => {
     const pokemonSpecies = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`).then(res => res.json());
-    
-    console.log(pokemon);
-    return {
-        pokemon,
-        pokemonSpecies
-    };
+    return pokemonSpecies;
 }

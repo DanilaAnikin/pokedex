@@ -1,28 +1,52 @@
 <script setup lang="ts">
-import { getPokemon } from '~~/store/pokemon';
-import type { PokemonData } from '~~/types';
+import { getPokemon, getSpecies } from '~~/store/pokemon';
 import { useRoute } from 'vue-router';
+import type { PokemonData } from '~~/types';
 
 const id = ref<number>(parseInt(useRoute().path.split('/')[2]!));
-const pokemon = ref(getPokemon(id.value));
+const pokemon = ref(await getPokemon(id.value));
+const species = ref(await getSpecies(id.value));
+
+const pokemonType = ref<string>(pokemon.value.types[0].type.name);
 console.log(pokemon);
+
+const typeColors = ref({
+    "normal": "#A8A878",
+    "fire": "#F08030",
+    "water": "#6890F0",
+    "electric": "#F8D030",
+    "grass": "#78C850",
+    "ice": "#98D8D8",
+    "fighting": "#C03028",
+    "poison": "#A040A0",
+    "ground": "#E0C068",
+    "flying": "#A890F0",
+    "psychic": "#F85888",
+    "bug": "#A8B820",
+    "rock": "#B8A038",
+    "ghost": "#705898",
+    "dragon": "#7038F8",
+    "dark": "#705848",
+    "steel": "#B8B8D0",
+    "fairy": "#EE99AC",
+});
 </script>
 
 <template>
     <main class="">
         <header class="">
             <div class="">
-                <div class="">
-                    <a href="./index.vue" class="">
+                <div class="flex">
+                    <div @click="navigateTo('/')" class="">
                         <img
                             src="../../img/back-to-home.svg"
                             alt="back to home"
                             class=""
                             id="back-btn"
                         >
-                    </a>
+                    </div>
                     <div class="">
-                        <h1 class=""></h1>
+                        <h1 class="">{{ pokemon.name }}</h1>
                     </div>
                 </div>
                 <div class="">
@@ -30,17 +54,17 @@ console.log(pokemon);
                 </div>
             </div>
         </header>
-        <div class="">
-            <a href="#" class="" id="left-arrow">
+        <div :class="`flex items-center justify-center gap-6 bg-[${typeColors[pokemonType]}]`">
+            <div @click="id !== 1 ? navigateTo(`./${id-1}`) : navigateTo(`./151`)" class="w-[10%]" id="left-arrow">
                 <img
                     src="../../img/chevron_left.svg"
                     alt="back"
                 >
-            </a>
-            <div class="">
-                <img src="" alt="">
             </div>
-            <div @click="navigateTo(`pokemon/${id+1}`)" class="">
+            <div class="w-full max-w-[33%]">
+                <img :src="`https://raw.githubusercontent.com/pokeapi/sprites/master/sprites/pokemon/other/dream-world/${id}.svg`" :alt="pokemon.name">
+            </div>
+            <div @click="id !== 151 ? navigateTo(`./${id+1}`) : navigateTo(`./${1}`)" class="w-[10%]">
                 <img
                     src="../../img/chevron_right.svg"
                     alt="forward"
