@@ -40,7 +40,7 @@ const handleSearch = async() => {
             <img src="../img/pokeball.svg" alt="pokeball" class="w-9 h-9" />
             <h1>Pokédex</h1>
           </div>
-          <div class="pt-4 flex items-center gap-6 justify-between max-w-[420px] w-full">
+          <div class="pt-4 flex items-center gap-6 justify-between max-w-[420px] w-[98%]">
             <div class="bg-white flex rounded-3xl px-4 py-2 shadow-md justify-between gap-4 items-center w-[80%]">
               <img src="../img/search.svg" @click="handleSearch()" class="w-5 h-5" />
               <input v-model="searchInput" @keyup="handleSearch()" class="w-full placeholder:text-sm placeholder:font-extrabold outline-none" type="text" v-on:keyup.enter="handleSearch()" placeholder="Search" id="search-input" />
@@ -71,7 +71,7 @@ const handleSearch = async() => {
         </div>
       </header>
       <div class="w-full flex justify-center">
-      <section class="flex justify-center my-4 mx-1 bg-white rounded-xl w-[424px]">
+      <section class="flex justify-center my-4 mx-1 bg-white rounded-xl max-w-[680px] w-[98%]">
         <div class="">
           <div class="">
 
@@ -80,9 +80,9 @@ const handleSearch = async() => {
         <div v-if="pokemons.length === 0" class="">
           Pokemon not found
         </div>
-        <div v-if="pokemons.length > 0" class="flex flex-wrap px-2 py-3 w-full justify-between rounded-xl shadow-inner shadow-gray-700">
-          <div v-for="pokemon in pokemons" @click="navigateTo(`./pokemon/${pokemon.url.split('/')[6]}`)" class="p-1 rounded-xl mt-2 w-[132px] h-32 min-h-32 shadow-inner shadow-gray-300 cursor-pointer">
-            <PokemonPreview :id="parseInt(pokemon.url.split('/')[6]!)" :img="pokemon.url" :name="pokemon.name" class="flex flex-col justify-between" />
+        <div v-if="pokemons.length > 0" class="flex flex-wrap w-full justify-center rounded-xl">
+          <div v-for="pokemon in pokemons" @click="navigateTo(`./pokemon/${pokemon.url.split('/')[6]}`)" class="p-1 rounded-xl mt-2 max-w-[226px] w-[50%] h-fit cursor-pointer">
+            <PokemonPreview :id="parseInt(pokemon.url.split('/')[6]!)" :img="pokemon.url" :name="pokemon.name" class="flex flex-col w-full" />
           </div>
         </div>
         </section>
