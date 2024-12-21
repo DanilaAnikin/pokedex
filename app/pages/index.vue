@@ -33,33 +33,33 @@ const handleSearch = async() => {
 </script>
 
 <template>
-    <main class="bg-[#DC0A2D]">
+    <main class="bg-[#DC0A2D] pb-1 h-full w-full">
       <header class="">
         <div class="flex flex-col justify-center w-full items-center">
           <div class="flex text-white gap-6 text-4xl font-extrabold pt-5 px-6 items-center max-w-md w-full">
             <img src="../img/pokeball.svg" alt="pokeball" class="w-9 h-9" />
             <h1>Pokédex</h1>
           </div>
-          <div class="pt-4 flex items-center gap-6 justify-between w-[80%] max-w-md">
-            <div class="bg-white flex rounded-3xl px-4 py-2 shadow-md justify-between gap-4 items-center w-full">
+          <div class="pt-4 flex items-center gap-6 justify-between max-w-[420px] w-full">
+            <div class="bg-white flex rounded-3xl px-4 py-2 shadow-md justify-between gap-4 items-center w-[80%]">
               <img src="../img/search.svg" @click="handleSearch()" class="w-5 h-5" />
               <input v-model="searchInput" @keyup="handleSearch()" class="w-full placeholder:text-sm placeholder:font-extrabold outline-none" type="text" v-on:keyup.enter="handleSearch()" placeholder="Search" id="search-input" />
-              <img v-if="searchInput !== ''" src="../img/cross.svg" @click="searchInput=''; handleSearch()" alt="cross icon" class="h-5 w-5" id="search-close-icon" />
+              <img v-if="searchInput !== ''" src="../img/cross.svg" @click="searchInput=''; handleSearch()" alt="cross icon" class="h-4 w-4" id="search-close-icon" />
             </div>
             <div class="flex flex-col items-center">
               <div @click="sortingOpened = !sortingOpened" class="bg-white cursor-pointer rounded-full p-2 w-10 h-10">
                 <img src="../img/sorting.svg" alt="sorting icon" class="h-6 w-6" id="sort-icon" />
               </div>
-              <div v-if="sortingOpened" class="bg-white px-2 py-2 w-fit rounded-lg absolute mt-12 font-extrabold text-red-950">
-                <p class=""> Sort by:</p>
+              <div v-if="sortingOpened" class="shadow-inner shadow-slate-500 bg-white px-1 py-2 w-fit rounded-lg absolute mr-4 -mt-4 font-extrabold text-red-950">
+                <p class="text-sm flex justify-between w-full"> Sort by: <img @click="sortingOpened = false" src="../img/cross.svg" class="h-3 w-3 cursor-pointer"></p>  
                 <div class="">
-                  <div class="flex gap-2 cursor-pointer">
+                  <div class="flex gap-1 cursor-pointer">
                     <input @click="numberChecked=true; nameChecked=false" type="radio" id="number" name="filters" value="number" checked>
-                    <label for="number" class="text-sm">Number</label>
+                    <label for="number" class="text-xs">Number</label>
                   </div>
-                  <div class="flex gap-2 cursor-pointer">
+                  <div class="flex gap-1 cursor-pointer">
                     <input @click="numberChecked=false; nameChecked=true" type="radio" id="name" name="filters" value="name" checked>
-                    <label for="number" class="text-sm">Name</label>
+                    <label for="number" class="text-xs">Name</label>
                   </div>
                 </div>
               </div>
@@ -67,7 +67,8 @@ const handleSearch = async() => {
           </div>
         </div>
       </header>
-      <section class="flex justify-center my-4 mx-1 bg-white rounded-xl">
+      <div class="w-full flex justify-center">
+      <section class="flex justify-center my-4 mx-1 bg-white rounded-xl w-[424px]">
         <div class="">
           <div class="">
 
@@ -76,11 +77,12 @@ const handleSearch = async() => {
         <div v-if="pokemons.length === 0" class="">
           Pokemon not found
         </div>
-        <div class="flex flex-wrap px-2 py-3 w-full justify-between rounded-xl shadow-inner shadow-gray-700">
-          <div v-for="pokemon in pokemons" class="p-1 rounded-xl mt-2 w-[132px] h-32 shadow-inner shadow-gray-300">
-            <PokemonPreview @click="navigateTo(`./pokemon/${pokemon.url.split('/')[6]}`)" :id="parseInt(pokemon.url.split('/')[6]!)" :img="pokemon.url" :name="pokemon.name" class="flex flex-col justify-between" />
+        <div v-if="pokemons.length > 0" class="flex flex-wrap px-2 py-3 w-full justify-between rounded-xl shadow-inner shadow-gray-700">
+          <div v-for="pokemon in pokemons" @click="navigateTo(`./pokemon/${pokemon.url.split('/')[6]}`)" class="p-1 rounded-xl mt-2 w-[132px] h-32 min-h-32 shadow-inner shadow-gray-300 cursor-pointer">
+            <PokemonPreview :id="parseInt(pokemon.url.split('/')[6]!)" :img="pokemon.url" :name="pokemon.name" class="flex flex-col justify-between" />
           </div>
         </div>
         </section>
+        </div>
     </main>
 </template>

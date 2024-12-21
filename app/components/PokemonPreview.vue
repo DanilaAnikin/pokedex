@@ -17,11 +17,11 @@ const pokemon = ref(await getPokemon(props.id));
         <div class="flex justify-end items-center">
             <p class="text-xs text-slate-500 font-extrabold h-2">#{{ id }}</p>
         </div>
-        <div class="flex items-center justify-center max-h-[88px] h-full">
+        <div class="flex items-center justify-center h-[84px]">
         <img
             :src="`https://raw.githubusercontent.com/pokeapi/sprites/master/sprites/pokemon/other/dream-world/${id}.svg`"
             :alt="pokemon.name"
-            class="items-center flex justify-center max-h-[86px]"
+            class="items-center flex justify-center max-h-[86px] h-full max-w-[95%] w-full"
         >
         </div>
         <div class="">
