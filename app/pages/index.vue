@@ -50,8 +50,8 @@ const handleSearch = async() => {
               <div @click="sortingOpened = !sortingOpened" class="bg-white cursor-pointer rounded-full p-2 w-10 h-10">
                 <img src="../img/sorting.svg" alt="sorting icon" class="h-6 w-6" id="sort-icon" />
               </div>
-              <div v-if="sortingOpened" class="shadow-inner shadow-slate-500 bg-white px-1 py-2 w-fit rounded-lg absolute mr-4 -mt-4 font-extrabold text-red-950">
-                <p class="text-sm flex justify-between w-full"> Sort by: <img @click="sortingOpened = false" src="../img/cross.svg" class="h-3 w-3 cursor-pointer"></p>  
+              <div v-if="sortingOpened" class="shadow-inner shadow-slate-500 bg-white px-1 py-1 w-fit rounded-lg absolute mr-4 -mt-4 font-extrabold text-red-950">
+                <p class="text-sm flex justify-between items-center w-full"> Sort <img @click="sortingOpened = false" src="../img/cross.svg" class="h-3 w-3 cursor-pointer"></p>  
                 <div class="">
                   <div class="flex gap-1 cursor-pointer">
                     <input @click="numberChecked=true; nameChecked=false" type="radio" id="number" name="filters" value="number" checked>
