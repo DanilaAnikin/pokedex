@@ -1,34 +1,51 @@
 <script setup lang="ts">
 import { getAllPokemons } from '~~/store/pokemon';
 import { type Pokemon } from '~~/types';
+import {getPokemonId} from "~~/utils/pokemon";
 
-const pokemons = ref<Pokemon[]>(await getAllPokemons());
+const {data: pokemons} = await useAsyncData<Pokemon[]>(() => getAllPokemons())
+if(!pokemons.value){
+  throw createError({
+    statusCode: 500,
+    statusMessage: "Failed fetching pokemons",
+    fatal: true
+  })
+}
+
+
 const searchInput = ref<string>("");
 const numberChecked = ref<boolean>(false);
 const nameChecked = ref<boolean>(true);
 const sortingOpened = ref<boolean>(false);
 
-const handleSearch = async() => {
- const searchTerm = searchInput.value.toLowerCase();
- let filteredPokemons;
- pokemons.value = await getAllPokemons();
+/* VISIBLE POKEMONS */
+const visiblePokemons = ref<Pokemon[]>(pokemons.value)
 
- if (searchInput.value.length === 0) {
-  filteredPokemons = pokemons.value;
- } else if(numberChecked.value) {
+
+function handleSearch(){
+  if(!pokemons.value){
+    return
+  }
+
+  const searchTerm = searchInput.value.toLowerCase();
+  let filteredPokemons;
+
+  if (searchInput.value.length === 0) {
+    filteredPokemons = pokemons.value;
+  } else if(numberChecked.value) {
    filteredPokemons = pokemons.value.filter((pokemon) => {
     const pokemonId = pokemon.url.split("/")[6];
     return pokemonId?.startsWith(searchTerm);
    })
- } else if(nameChecked.value) {
+  } else if(nameChecked.value) {
    filteredPokemons = pokemons.value.filter((pokemon) => {
     return pokemon.name.toLowerCase().startsWith(searchTerm);
    })
- } else {
+  } else {
   filteredPokemons = pokemons.value;
- }
+  }
 
- pokemons.value = filteredPokemons;
+  visiblePokemons.value = filteredPokemons;
 }
 </script>
 
@@ -77,12 +94,19 @@ const handleSearch = async() => {
 
           </div>
         </div>
-        <div v-if="pokemons.length === 0" class="">
+        <div v-if="visiblePokemons.length === 0" class="">
           Pokemon not found
         </div>
-        <div v-if="pokemons.length > 0" class="flex flex-wrap w-full justify-center rounded-xl">
-          <div v-for="pokemon in pokemons" @click="navigateTo(`./pokemon/${pokemon.url.split('/')[6]}`)" class="p-1 rounded-xl mt-2 max-w-[226px] w-[50%] h-fit cursor-pointer">
-            <PokemonPreview :id="parseInt(pokemon.url.split('/')[6]!)" :img="pokemon.url" :name="pokemon.name" class="flex flex-col w-full" />
+        <div v-if="visiblePokemons.length > 0" class="flex flex-wrap w-full justify-center rounded-xl">
+          <div
+              v-for="pokemon in visiblePokemons"
+              @click="navigateTo(`./pokemon/${getPokemonId(pokemon)}`)"
+              class="p-1 rounded-xl mt-2 max-w-[226px] w-[50%] h-fit cursor-pointer"
+          >
+            <PokemonPreview
+              :pokemon="pokemon"
+              class="flex flex-col w-full"
+            />
           </div>
         </div>
         </section>

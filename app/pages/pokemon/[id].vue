@@ -1,51 +1,37 @@
 <script setup lang="ts">
 import { getPokemon, getSpecies } from '~~/store/pokemon';
 import { useRoute } from 'vue-router';
-import type { PokemonData } from '~~/types';
+import {type PokemonData, typeColors, type TypeColorsKey} from "~~/types";
 
-const id = ref<number>(parseInt(useRoute().path.split('/')[2]!));
-const pokemon = ref(await getPokemon(id.value));
-const species = ref(await getSpecies(id.value));
+const route = useRoute();
+const id = Number(route.params.id)
 
-const pokemonType = ref<TypeColorsKey>(pokemon.value.types[0].type.name);
-const typeColors = ref({
-    normal: "#A8A878",
-    fire: "#F08030",
-    water: "#6890F0",
-    electric: "#F8D030",
-    grass: "#78C850",
-    ice: "#98D8D8",
-    fighting: "#C03028",
-    poison: "#A040A0",
-    ground: "#E0C068",
-    flying: "#A890F0",
-    psychic: "#F85888",
-    bug: "#A8B820",
-    rock: "#B8A038",
-    ghost: "#705898",
-    dragon: "#7038F8",
-    dark: "#705848",
-    steel: "#B8B8D0",
-    fairy: "#EE99AC",
-});
-
-type TypeColorsKey = keyof typeof typeColors.value;
-
-const pokemonTypeColor = ref<string>(typeColors.value[pokemonType.value]);
-
-const getPokemonTypesColors = (): string[] => {
-    const list = [];
-    for (let i = 0; i < pokemon.value.types.length; i++) {
-        const pokType: TypeColorsKey = pokemon.value.types[i].type.name
-        list.push(typeColors.value[pokType]);
-    }
-    return list;
+if(isNaN(id)){
+  throw createError({
+    statusMessage: 'Invalid pokemon ID',
+    fatal: true
+  })
 }
 
-const pokemonTypesColors = ref<string[]>(getPokemonTypesColors());
+/* DATA FETCHING */
+const {data: pokemon} = await useAsyncData<PokemonData>(() => getPokemon(id))
+const {data: species} = await useAsyncData(() => getSpecies(id))
+
+if(!pokemon.value || !species.value){
+  throw createError({
+    statusCode: 404,
+    statusMessage: "Pokemon not found",
+    fatal: true
+  })
+}
+
+const pokemonStats = [ "HP", "ATK", "DEF", "SATK", "SDEF", "SPD" ]
+const pokemonType = pokemon.value.types[0]!.type.name as TypeColorsKey
+const pokemonTypeColor = typeColors[pokemonType]
+const pokemonTypesColors = pokemon.value.types.map((type) => typeColors[type.type.name as TypeColorsKey])
 
 const hexToRGB = (hex: string) => {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
         r: parseInt(result[1]!, 16),
         g: parseInt(result[2]!, 16),
@@ -53,11 +39,12 @@ const hexToRGB = (hex: string) => {
     } : null;
 }
 
-const pokemonStats = ref<string[]>([ "HP", "ATK", "DEF", "SATK", "SDEF", "SPD" ])
 </script>
 
 <template>
-    <main>
+    <main
+      v-if="pokemon"
+    >
         <img
             src="../../img/pokedex.svg"
             alt="pokedex"
@@ -83,15 +70,17 @@ const pokemonStats = ref<string[]>([ "HP", "ATK", "DEF", "SATK", "SDEF", "SPD" ]
                 </div>
             </div>
         </header>
-        <div class="flex items-center justify-center pt-4" :style="`background-color: ${pokemonTypeColor}`" >
+        <div class="flex items-center justify-center pt-4S" :style="`background-color: ${pokemonTypeColor}`" >
             <div class="flex items-center w-[600px] justify-between px-2 ">
-                <div @click="id !== 1 ? navigateTo(`./${id-1}`) : navigateTo(`./151`)" id="left-arrow" class="cursor-pointer">
-                    <img
-                        src="../../img/chevron_left.svg"
-                        alt="back"
-                        class="w-[60%]"
-                    >
-                </div>
+                <NuxtLink
+                  :to="`/pokemon/${id !== 1 ? id - 1 : 151}`"
+                >
+                  <img
+                      src="../../img/chevron_left.svg"
+                      alt="back"
+                      class="w-[60%]"
+                  >
+                </NuxtLink>
                 <div class="w-[60%] mb-[-10%]">
                     <img
                     :src="`https://raw.githubusercontent.com/pokeapi/sprites/master/sprites/pokemon/other/dream-world/${id}.svg`"
@@ -99,18 +88,26 @@ const pokemonStats = ref<string[]>([ "HP", "ATK", "DEF", "SATK", "SDEF", "SPD" ]
                     class="w-full"
                     >
                 </div>
-                <div @click="id !== 151 ? navigateTo(`./${id+1}`) : navigateTo(`./${1}`)" class="cursor-pointer">
-                    <img
-                        src="../../img/chevron_right.svg"
-                        alt="forward"
-                        class="w-[60%]"
-                    >
-                </div>
+                <NuxtLink
+                    :to="`/pokemon/${id !== 151 ? id + 1 : 1}`"
+                >
+                  <img
+                      src="../../img/chevron_right.svg"
+                      alt="forward"
+                      class="w-[60%]"
+                  >
+                </NuxtLink>
             </div>
         </div>
         <div class="">
             <div class="flex justify-center gap-5 h-28 items-end">
-                <p v-for="type, index in pokemon.types" :style="`background-color: ${pokemonTypesColors[index]}`" class="h-fit rounded-3xl w-fit px-3 py-2 capitalize font-extrabold text-white">{{ type.type.name }}</p>
+                <p
+                    v-for="(type, typeIndex) in pokemon.types"
+                    :style="`background-color: ${pokemonTypesColors[typeIndex]}`"
+                    class="h-fit rounded-3xl w-fit px-3 py-2 capitalize font-extrabold text-white"
+                >
+                  {{ type.type.name }}
+                </p>
             </div>
             <p class="justify-center flex font-extrabold py-3 text-xl">About</p>
             <div class="flex justify-center items-center px-6">
@@ -144,11 +141,11 @@ const pokemonStats = ref<string[]>([ "HP", "ATK", "DEF", "SATK", "SDEF", "SPD" ]
             <p class="px-8 text-sm py-6 items-center text-center">{{ species.flavor_text_entries[0].flavor_text }}</p>
             <p class="text-center text-xl font-extrabold">Base Stats</p>
             <div class="px-8 text-sm pt-4 w-full flex flex-col items-center">
-                <div v-for="stat, i in pokemon.stats" class="max-w-lg w-full flex items-center" data-stat="HP" >
-                    <p class="border-r border-slate-400 w-20 text-center pr-3">{{ pokemonStats[i] }}</p>
-                    <p class="w-16 text-center">{{ pokemon.stats[i].base_stat }}</p>
+                <div v-for="(stat, statIndex) in pokemon.stats" class="max-w-lg w-full flex items-center" data-stat="HP" >
+                    <p class="border-r border-slate-400 w-20 text-center pr-3">{{ pokemonStats[statIndex] }}</p>
+                    <p class="w-16 text-center">{{ stat.base_stat }}</p>
                     <div class="w-full rounded-full h-2 bg-opacity-25" :style="`background-color: rgba(${hexToRGB(pokemonTypeColor)!.r}, ${hexToRGB(pokemonTypeColor)!.g}, ${hexToRGB(pokemonTypeColor)!.b}, 0.25)`">
-                        <div :style="`background-color: ${pokemonTypeColor}; width: ${pokemon.stats[i].base_stat/2}%;`" class="h-2 bg-opacity-100 rounded-full"></div>
+                        <div :style="`background-color: ${pokemonTypeColor}; width: ${stat.base_stat/2}%;`" class="h-2 bg-opacity-100 rounded-full"></div>
                     </div>
                 </div>
             </div>
