@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { getAllPokemons } from '~~/store/pokemon';
+import axios from 'axios';
 import { type Pokemon } from '~~/types';
 
-const pokemons = ref<Pokemon[]>(await getAllPokemons());
+const pokemonResponse = await axios.get('http://localhost:3000/api/pokemons');
+const pokemons = ref(pokemonResponse.data);
+
 const searchInput = ref<string>("");
 const numberChecked = ref<boolean>(false);
 const nameChecked = ref<boolean>(true);
@@ -10,17 +12,17 @@ const nameChecked = ref<boolean>(true);
 const handleSearch = async() => {
  const searchTerm = searchInput.value.toLowerCase();
  let filteredPokemons;
- pokemons.value = await getAllPokemons();
+ pokemons.value = (await axios.get('http://localhost:3000/api/pokemons')).data;
 
  if (searchInput.value.length === 0) {
   filteredPokemons = pokemons.value;
  } else if(numberChecked.value) {
-   filteredPokemons = pokemons.value.filter((pokemon) => {
+   filteredPokemons = pokemons.value.filter((pokemon: any) => {
     const pokemonId = pokemon.url.split("/")[6];
     return pokemonId?.startsWith(searchTerm);
    })
  } else if(nameChecked.value) {
-   filteredPokemons = pokemons.value.filter((pokemon) => {
+   filteredPokemons = pokemons.value.filter((pokemon: any) => {
     return pokemon.name.toLowerCase().startsWith(searchTerm);
    })
  } else {
