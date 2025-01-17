@@ -1,10 +1,20 @@
 <script setup lang="ts">
-import { getPokemon, getSpecies } from '~~/store/pokemon';
+import axios from 'axios';
 import { useRoute } from 'vue-router';
 import { type PokemonData, type PokemonSpecies, typeColors, type TypeColorsKey } from '~~/types';
 
+<<<<<<< HEAD
 const route = useRoute();
 const id = Number(route.params.id);
+=======
+const id = ref<number>(parseInt(useRoute().path.split('/')[2]!));
+
+const pokemonResponse = await axios.get(`http://localhost:3000/api/pokemon/${id.value}`);
+const pokemon = ref(pokemonResponse.data);
+
+const speciesResponse = await axios.get(`http://localhost:3000/api/pokemon-species/${id.value}`)
+const species = ref(speciesResponse.data);
+>>>>>>> 6aa520c (updaty s db)
 
 if(isNaN(id)) {
     throw createError({

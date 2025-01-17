@@ -18,13 +18,17 @@
     "@nuxtjs/google-fonts": "^3.2.0",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@supabase/supabase-js": "^2.45.6",
+    "axios": "^1.7.9",
     "dotenv": "^16.4.5",
+    "express": "^4.21.2",
     "nuxt": "^3.13.0",
+    "sqlite3": "^5.1.7",
     "vue": "latest",
     "vue-router": "latest",
     "yup": "^1.4.0"
   },
   "devDependencies": {
-    "@nuxtjs/supabase": "^1.4.1"
+    "@nuxtjs/supabase": "^1.4.1",
+    "@types/express": "^5.0.0"
   }
 }

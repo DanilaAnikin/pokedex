@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getAllPokemons } from '~~/store/pokemon';
+import axios from 'axios';
 import { type Pokemon } from '~~/types';
 import { getPokemonId } from '~~/utils/pokemon';
 
@@ -12,17 +12,45 @@ if(!pokemons.value) {
   });
 }
 
+<<<<<<< HEAD
+=======
+const pokemonResponse = await axios.get('http://localhost:3000/api/pokemons');
+const pokemons = ref(pokemonResponse.data);
+
+>>>>>>> 6aa520c (updaty s db)
 const searchInput = ref<string>("");
 const numberChecked = ref<boolean>(false);
 const nameChecked = ref<boolean>(true);
 const sortingOpened = ref<boolean>(false);
 
+<<<<<<< HEAD
 const visiblePokemons = ref<Pokemon[]>(pokemons.value);
 
 function handleSearch() {
   if(!pokemons.value) {
     return;
   }
+=======
+const handleSearch = async() => {
+ const searchTerm = searchInput.value.toLowerCase();
+ let filteredPokemons;
+ pokemons.value = (await axios.get('http://localhost:3000/api/pokemons')).data;
+
+ if (searchInput.value.length === 0) {
+  filteredPokemons = pokemons.value;
+ } else if(numberChecked.value) {
+   filteredPokemons = pokemons.value.filter((pokemon: any) => {
+    const pokemonId = pokemon.url.split("/")[6];
+    return pokemonId?.startsWith(searchTerm);
+   })
+ } else if(nameChecked.value) {
+   filteredPokemons = pokemons.value.filter((pokemon: any) => {
+    return pokemon.name.toLowerCase().startsWith(searchTerm);
+   })
+ } else {
+  filteredPokemons = pokemons.value;
+ }
+>>>>>>> 6aa520c (updaty s db)
 
   const searchTerm = searchInput.value.toLowerCase();
   let filteredPokemons;
