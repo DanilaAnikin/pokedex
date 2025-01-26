@@ -1,9 +1,14 @@
 import express from 'express';
+import cors from 'cors'; // Import the cors package
 import { fetchPokemons, fetchPokemon, fetchPokemonSpecies, getPokemonImage } from '../cache.js';
 
 const app = express();
 const PORT = 3000;
 
+// Enable CORS for all routes
+app.use(cors());
+
+// Your existing routes
 app.get('/pokemons', async (req, res) => {
   try {
     const pokemons = await fetchPokemons();

@@ -3,8 +3,11 @@ import axios from 'axios';
 
 // Initialize SQLite database
 const db = new sqlite3.Database('./pokemon_cache.db', (err) => {
-  if (err) console.error(err.message);
-  else console.log('Connected to SQLite database.');
+  if (err) {
+    console.error('Error connecting to SQLite database:', err.message);
+  } else {
+    console.log('Connected to SQLite database.');
+  }
 });
 
 // Create tables
@@ -15,9 +18,12 @@ db.serialize(() => {
       count INTEGER,
       next TEXT,
       previous TEXT,
-      results TEXT
+      results TEXT,
+      timestamp INTEGER
     )
-  `);
+  `, (err) => {
+    if (err) console.error('Error creating pokemons table:', err.message);
+  });
 
   db.run(`
     CREATE TABLE IF NOT EXISTS pokemon (
@@ -25,49 +31,74 @@ db.serialize(() => {
       name TEXT,
       details TEXT
     )
-  `);
+  `, (err) => {
+    if (err) console.error('Error creating pokemon table:', err.message);
+  });
 
   db.run(`
     CREATE TABLE IF NOT EXISTS pokemon_species (
       id INTEGER PRIMARY KEY,
       species TEXT
     )
-  `);
+  `, (err) => {
+    if (err) console.error('Error creating pokemon_species table:', err.message);
+  });
 });
 
 const CACHE_DURATION = 3600 * 1000; // 1 hour in milliseconds
 
 async function fetchPokemons() {
   const endpoint = 'https://pokeapi.co/api/v2/pokemon?limit=151';
+  console.log('Fetching Pokémon list from PokeAPI:', endpoint);
+
   return new Promise((resolve, reject) => {
+    // Step 1: Check the database for cached data
     db.get('SELECT * FROM pokemons', async (err, row) => {
       const now = Date.now();
       if (err) {
+        console.error('Database error (SELECT):', err.message);
         return reject(err);
-      } else {
-        console.log('Fetched Pokemons:', row);
-        resolve(row);
       }
 
-      if (row && now - row.id < CACHE_DURATION) {
+      // Step 2: Check if cached data is valid
+      if (row && now - row.timestamp < CACHE_DURATION) {
         console.log('Serving Pokémon list from cache');
+        console.log('Cache timestamp:', row.timestamp, 'Current time:', now, 'Difference:', now - row.timestamp);
         return resolve(JSON.parse(row.results));
       }
 
-      try {
-        const response = await axios.get(endpoint);
-        const data = response.data;
+      // Step 3: If cache is expired or doesn't exist, fetch new data from PokeAPI
+      let retries = 3; // Number of retries
+      while (retries > 0) {
+        try {
+          console.log('Making request to PokeAPI...');
+          const response = await axios.get(endpoint);
+          console.log('PokeAPI response:', response.status, response.statusText);
+          const data = response.data;
 
-        db.run(
-          `INSERT INTO pokemons (id, count, next, previous, results) 
-           VALUES (?, ?, ?, ?, ?) 
-           ON CONFLICT(id) DO UPDATE SET count = excluded.count, next = excluded.next, previous = excluded.previous, results = excluded.results`,
-          [now, data.count, data.next, data.previous, JSON.stringify(data.results)]
-        );
-
-        resolve(data.results);
-      } catch (error) {
-        reject(error);
+          // Step 4: Update the database with new data
+          db.run(
+            `INSERT INTO pokemons (id, count, next, previous, results, timestamp) 
+             VALUES (?, ?, ?, ?, ?, ?) 
+             ON CONFLICT(id) DO UPDATE SET count = excluded.count, next = excluded.next, previous = excluded.previous, results = excluded.results, timestamp = excluded.timestamp`,
+            [1, data.count, data.next, data.previous, JSON.stringify(data.results), now],
+            (err) => {
+              if (err) {
+                console.error('Database error (INSERT/UPDATE):', err.message);
+                return reject(err);
+              }
+              console.log('Pokémon list fetched and cached successfully');
+              resolve(data.results);
+            }
+          );
+          break; // Exit the loop on success
+        } catch (error) {
+          console.error(`Error fetching Pokémon list from PokeAPI (${retries} retries left):`, error.message);
+          retries--;
+          if (retries === 0) {
+            reject(error);
+          }
+        }
       }
     });
   });
@@ -136,6 +167,16 @@ async function fetchPokemonSpecies(pokemonId) {
 function getPokemonImage(pokemonId) {
   return `https://raw.githubusercontent.com/pokeapi/sprites/master/sprites/pokemon/other/dream-world/${pokemonId}.svg`;
 }
+
+process.on('SIGINT', () => {
+  db.close((err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    console.log('Closed the database connection.');
+    process.exit(0);
+  });
+});
 
 // Export all functions
 export { fetchPokemons, fetchPokemon, fetchPokemonSpecies, getPokemonImage };

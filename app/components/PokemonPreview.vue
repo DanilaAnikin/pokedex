@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getPokemon } from '~~/store/pokemon';
+import axios from "axios";
 import { type Pokemon, type PokemonData, typeColors, type TypeColorsKey } from "~~/types";
 import { getPokemonId } from "~~/utils/pokemon";
 
@@ -8,7 +8,7 @@ const props = defineProps<{
 }>();
 
 const pokemonId = getPokemonId(props.pokemon);
-const { data: pokemon } = await useAsyncData<PokemonData>(`pokemon-${pokemonId}`,() => getPokemon(pokemonId) as Promise<PokemonData>)
+const { data: pokemon } = await useAsyncData<PokemonData>(`pokemon-${pokemonId}`, async() => await axios.get(`http://localhost:3000/pokemon/${pokemonId}`));
 if(!pokemon.value){
   throw createError({
     statusCode: 404,
@@ -17,7 +17,7 @@ if(!pokemon.value){
   });
 }
 
-const pokemonType = pokemon.value.types[0]!.type.name as TypeColorsKey
+const pokemonType = pokemon.value.types[0]?.type.name as TypeColorsKey;
 const pokemonTypeColor = typeColors[pokemonType] as string;
 const pokemonTypesColors = pokemon.value.types.map((type) => typeColors[type.type.name as TypeColorsKey])
 
