@@ -3,6 +3,7 @@ import axios from 'axios';
 import { type Pokemon } from '~~/types';
 import { getPokemonId } from '~~/utils/pokemon';
 
+<<<<<<< HEAD
 const { data: pokemons } = await useAsyncData<Pokemon[]>(() => getAllPokemons())
 if(!pokemons.value) {
   throw createError({
@@ -18,6 +19,11 @@ const pokemonResponse = await axios.get('http://localhost:3000/api/pokemons');
 const pokemons = ref(pokemonResponse.data);
 
 >>>>>>> 6aa520c (updaty s db)
+=======
+const pokemonResponse = await axios.get('http://localhost:3000/api/pokemons');
+const pokemons = ref(pokemonResponse.data);
+
+>>>>>>> main
 const searchInput = ref<string>("");
 const numberChecked = ref<boolean>(false);
 const nameChecked = ref<boolean>(true);
