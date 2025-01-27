@@ -4,12 +4,11 @@ import { type Pokemon, type PokemonData, typeColors, type TypeColorsKey } from "
 import { getPokemonId } from "~~/utils/pokemon";
 
 const props = defineProps<{
-    pokemon: Pokemon,
+    pokemon: PokemonData,
 }>();
 
-const pokemonId = getPokemonId(props.pokemon);
-const { data: pokemon } = await useAsyncData<PokemonData>(`pokemon-${pokemonId}`, async() => await axios.get(`http://localhost:3000/pokemon/${pokemonId}`));
-if(!pokemon.value){
+const pokemonId = props.pokemon.id;
+if(!props.pokemon){
   throw createError({
     statusCode: 404,
     statusMessage: "Pokemon not found",
@@ -17,9 +16,10 @@ if(!pokemon.value){
   });
 }
 
-const pokemonType = pokemon.value.types?.[0]?.type.name as TypeColorsKey;
+const pokemonType = props.pokemon.types?.[0]?.type.name as TypeColorsKey;
 const pokemonTypeColor = typeColors[pokemonType] as string;
-const pokemonTypesColors = pokemon.value.types?.map((type) => typeColors[type.type.name as TypeColorsKey])
+const pokemonTypesColors = props.pokemon.types?.map((type) => typeColors[type.type.name as TypeColorsKey]);
+
 </script>
 
 <template>

@@ -47,10 +47,8 @@ db.serialize(() => {
 
 async function fetchPokemons() {
   const endpoint = 'https://pokeapi.co/api/v2/pokemon?limit=151';
-  console.log('Fetching Pokémon list from PokeAPI:', endpoint);
 
   return new Promise((resolve, reject) => {
-    // Step 1: Check the database for cached data
     db.get('SELECT * FROM pokemons', async (err, row) => {
       const now = Date.now();
       if (err) {
@@ -58,8 +56,7 @@ async function fetchPokemons() {
         return reject(err);
       }
 
-      // Step 3: If cache is expired or doesn't exist, fetch new data from PokeAPI
-      let retries = 3; // Number of retries
+      let retries = 3;
       while (retries > 0) {
         try {
           console.log('Making request to PokeAPI...');
@@ -67,22 +64,29 @@ async function fetchPokemons() {
           console.log('PokeAPI response:', response.status, response.statusText);
           const data = response.data;
 
-          // Step 4: Update the database with new data
+          // Fetch detailed data for each Pokémon
+          const detailedPokemons = await Promise.all(
+            data.results.map(async (pokemon) => {
+              const pokemonResponse = await axios.get(pokemon.url);
+              return pokemonResponse.data;
+            })
+          );
+
           db.run(
             `INSERT INTO pokemons (id, count, next, previous, results, timestamp) 
              VALUES (?, ?, ?, ?, ?, ?) 
              ON CONFLICT(id) DO UPDATE SET count = excluded.count, next = excluded.next, previous = excluded.previous, results = excluded.results, timestamp = excluded.timestamp`,
-            [1, data.count, data.next, data.previous, JSON.stringify(data.results), now],
+            [1, data.count, data.next, data.previous, JSON.stringify(detailedPokemons), now],
             (err) => {
               if (err) {
                 console.error('Database error (INSERT/UPDATE):', err.message);
                 return reject(err);
               }
               console.log('Pokémon list fetched and cached successfully');
-              resolve(data.results);
+              resolve(detailedPokemons);
             }
           );
-          break; // Exit the loop on success
+          break;
         } catch (error) {
           console.error(`Error fetching Pokémon list from PokeAPI (${retries} retries left):`, error.message);
           retries--;
@@ -169,5 +173,4 @@ process.on('SIGINT', () => {
   });
 });
 
-// Export all functions
 export { fetchPokemons, fetchPokemon, fetchPokemonSpecies, getPokemonImage };

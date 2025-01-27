@@ -15,16 +15,6 @@ const pokemonResponse = await axios.get(`http://localhost:3000/pokemon/${id}`).c
   });
 });
 
-// const pokemon = ref(pokemonResponse?.data || {
-//   name: 'Unknown',
-//   id: id,
-//   types: [{ type: { name: 'unknown' } }],
-//   weight: 0,
-//   height: 0,
-//   abilities: [],
-//   stats: [],
-// });
-
 const speciesResponse = await axios.get(`http://localhost:3000/pokemon-species/${id}`).catch((error) => {
   console.error('Error fetching Pokémon species:', error);
   throw createError({
@@ -33,10 +23,6 @@ const speciesResponse = await axios.get(`http://localhost:3000/pokemon-species/$
     fatal: true,
   });
 });
-
-// const species = ref(speciesResponse?.data || {
-//   flavor_text_entries: [{ flavor_text: 'No description available.' }],
-// })
 
 const pokemon = ref(pokemonResponse?.data || {
   name: 'bulbasaur',
@@ -57,8 +43,6 @@ const pokemon = ref(pokemonResponse?.data || {
     { base_stat: 45, stat: { name: 'speed' } },
   ]
 });
-
-console.log(pokemon.value);
 
 const species = ref(pokemonResponse?.data || {
   flavor_text_entries: [{ flavor_text: 'A strange seed was planted on its back at birth.' }],
