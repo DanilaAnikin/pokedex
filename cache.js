@@ -49,13 +49,19 @@ async function fetchPokemons() {
   const endpoint = 'https://pokeapi.co/api/v2/pokemon?limit=151';
 
   return new Promise((resolve, reject) => {
-    db.get('SELECT * FROM pokemons', async (err, row) => {
-      const now = Date.now();
+    db.get('SELECT * FROM pokemons WHERE id = 1', async (err, row) => {
       if (err) {
         console.error('Database error (SELECT):', err.message);
         return reject(err);
       }
 
+      // If data exists in the database and is not stale, return it
+      if (row) {
+        console.log('Serving Pokémon list from cache');
+        return resolve(JSON.parse(row.results));
+      }
+
+      // If data is not in the database, fetch it from the API
       let retries = 3;
       while (retries > 0) {
         try {
@@ -72,11 +78,12 @@ async function fetchPokemons() {
             })
           );
 
+          // Insert or update the data in the database
           db.run(
             `INSERT INTO pokemons (id, count, next, previous, results, timestamp) 
              VALUES (?, ?, ?, ?, ?, ?) 
              ON CONFLICT(id) DO UPDATE SET count = excluded.count, next = excluded.next, previous = excluded.previous, results = excluded.results, timestamp = excluded.timestamp`,
-            [1, data.count, data.next, data.previous, JSON.stringify(detailedPokemons), now],
+            [1, data.count, data.next, data.previous, JSON.stringify(detailedPokemons), Date.now()],
             (err) => {
               if (err) {
                 console.error('Database error (INSERT/UPDATE):', err.message);
@@ -105,11 +112,13 @@ async function fetchPokemon(pokemonId) {
     db.get('SELECT * FROM pokemon WHERE id = ?', [pokemonId], async (err, row) => {
       if (err) return reject(err);
 
+      // If data exists in the database, return it
       if (row) {
         console.log(`Serving Pokémon ${pokemonId} details from cache`);
         return resolve(JSON.parse(row.details));
       }
 
+      // If data is not in the database, fetch it from the API
       try {
         const response = await axios.get(endpoint);
         const data = response.data;
@@ -135,11 +144,13 @@ async function fetchPokemonSpecies(pokemonId) {
     db.get('SELECT * FROM pokemon_species WHERE id = ?', [pokemonId], async (err, row) => {
       if (err) return reject(err);
 
+      // If data exists in the database, return it
       if (row) {
         console.log(`Serving Pokémon species ${pokemonId} from cache`);
         return resolve(JSON.parse(row.species));
       }
 
+      // If data is not in the database, fetch it from the API
       try {
         const response = await axios.get(endpoint);
         const data = response.data;

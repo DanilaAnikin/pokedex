@@ -1,5 +1,5 @@
 import express from 'express';
-import cors from 'cors'; // Import the cors package
+import cors from 'cors';
 import { fetchPokemons, fetchPokemon, fetchPokemonSpecies, getPokemonImage } from '../cache.js';
 
 const app = express();
@@ -7,7 +7,7 @@ const PORT = 3000;
 
 app.use(cors());
 
-// Your existing routes
+// Route to fetch all Pokémon
 app.get('/pokemons', async (req, res) => {
   try {
     const pokemons = await fetchPokemons();
@@ -18,6 +18,7 @@ app.get('/pokemons', async (req, res) => {
   }
 });
 
+// Route to fetch a specific Pokémon by ID
 app.get('/pokemon/:id', async (req, res) => {
   const pokemonId = req.params.id;
   try {
@@ -29,6 +30,7 @@ app.get('/pokemon/:id', async (req, res) => {
   }
 });
 
+// Route to fetch Pokémon species by ID
 app.get('/pokemon-species/:id', async (req, res) => {
   const pokemonId = req.params.id;
   try {
