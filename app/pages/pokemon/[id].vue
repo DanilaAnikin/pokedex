@@ -36,7 +36,7 @@ const speciesResponse = await axios.get(`http://localhost:3000/pokemon-species/$
 
 // const species = ref(speciesResponse?.data || {
 //   flavor_text_entries: [{ flavor_text: 'No description available.' }],
-// });
+// })
 
 const pokemon = ref(pokemonResponse?.data || {
   name: 'bulbasaur',
@@ -57,6 +57,8 @@ const pokemon = ref(pokemonResponse?.data || {
     { base_stat: 45, stat: { name: 'speed' } },
   ]
 });
+
+console.log(pokemon.value);
 
 const species = ref(pokemonResponse?.data || {
   flavor_text_entries: [{ flavor_text: 'A strange seed was planted on its back at birth.' }],
@@ -79,8 +81,8 @@ if (!pokemon.value || !species.value) {
 
 const pokemonStats = ["HP", "ATK", "DEF", "SATK", "SDEF", "SPD"];
 const pokemonType = pokemon.value.types?.[0]?.type?.name as TypeColorsKey || 'unknown';
-const pokemonTypeColor = typeColors[pokemonType] || '#A8A878'; // Default to 'normal' type color
-const pokemonTypesColors = pokemon.value.types?.map((type) => typeColors[type.type.name as TypeColorsKey]) || [pokemonTypeColor];
+const pokemonTypeColor = typeColors[pokemonType] || '#A8A878';
+const pokemonTypesColors = pokemon.value.types?.map((type) => typeColors[type.type.name as TypeColorsKey]) || [ pokemonTypeColor ];
 
 const hexToRGB = (hex: string) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -179,7 +181,7 @@ const hexToRGB = (hex: string) => {
         </div>
       </div>
       <p class="px-8 text-sm py-6 items-center text-center">
-        {{ species?.flavor_text_entries[0]?.flavor_text }}
+        {{ species?.flavor_text_entries?.[0]?.flavor_text }}
       </p>
       <p class="text-center text-xl font-extrabold">Base Stats</p>
       <div class="px-8 text-sm pt-4 w-full flex flex-col items-center">

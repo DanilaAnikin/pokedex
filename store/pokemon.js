@@ -5,7 +5,6 @@ import { fetchPokemons, fetchPokemon, fetchPokemonSpecies, getPokemonImage } fro
 const app = express();
 const PORT = 3000;
 
-// Enable CORS for all routes
 app.use(cors());
 
 // Your existing routes
