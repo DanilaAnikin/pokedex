@@ -47,7 +47,7 @@ const visiblePokemons = ref<PokemonData[]>(pokemons.value);
           <img src="../img/pokeball.svg" alt="pokeball" class="w-9 h-9" />
           <h1>Pokédex</h1>
         </div>
-        <div class="pt-4 flex items-center gap-6 justify-between max-w-[420px] w-[98%]">
+        <div class="pt-4 flex items-center gap-6 justify-center max-w-[420px] w-[98%]">
           <div class="bg-white flex rounded-3xl px-4 py-2 shadow-md justify-between gap-4 items-center w-[80%]">
             <img src="../img/search.svg" @click="handleSearch" class="w-5 h-5 cursor-pointer" />
             <input v-model="searchInput" @keyup="handleSearch" class="w-full placeholder:text-sm placeholder:font-extrabold outline-none" type="text" placeholder="Search" id="search-input" />
@@ -56,8 +56,9 @@ const visiblePokemons = ref<PokemonData[]>(pokemons.value);
         </div>
       </div>
     </header>
-    <div class="w-full flex justify-center">
-      <section class="flex justify-center my-4 mx-1 bg-white rounded-xl max-w-[680px] w-[98%]">
+    <div class="flex justify-center w-full">
+    <div class="w-[80%] flex justify-center">
+      <section class="flex justify-center my-4 mx-1 rounded-xl max-w-fit w-full">
         <div v-if="visiblePokemons.length === 0" class="p-4">
           Pokemon not found
         </div>
@@ -65,12 +66,13 @@ const visiblePokemons = ref<PokemonData[]>(pokemons.value);
           <div
             v-for="pokemon in visiblePokemons"
             @click="navigateTo(`/pokemon/${pokemon.id}`)"
-            class="p-1 rounded-xl mt-2 max-w-[226px] w-[50%] h-fit cursor-pointer"
+            class="p-1 rounded-xl max-w-[226px] min-w-[173px] w-full h-fit cursor-pointer"
           >
             <PokemonPreview :pokemon="pokemon" class="flex flex-col w-full" />
           </div>
         </div>
       </section>
     </div>
+  </div>
   </main>
 </template>
