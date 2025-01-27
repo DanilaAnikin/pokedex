@@ -45,8 +45,6 @@ db.serialize(() => {
   });
 });
 
-const CACHE_DURATION = 3600 * 1000; // 1 hour in milliseconds
-
 async function fetchPokemons() {
   const endpoint = 'https://pokeapi.co/api/v2/pokemon?limit=151';
   console.log('Fetching Pokémon list from PokeAPI:', endpoint);
@@ -58,13 +56,6 @@ async function fetchPokemons() {
       if (err) {
         console.error('Database error (SELECT):', err.message);
         return reject(err);
-      }
-
-      // Step 2: Check if cached data is valid
-      if (row && now - row.timestamp < CACHE_DURATION) {
-        console.log('Serving Pokémon list from cache');
-        console.log('Cache timestamp:', row.timestamp, 'Current time:', now, 'Difference:', now - row.timestamp);
-        return resolve(JSON.parse(row.results));
       }
 
       // Step 3: If cache is expired or doesn't exist, fetch new data from PokeAPI

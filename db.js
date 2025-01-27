@@ -4,7 +4,6 @@ import { fetchPokemons, fetchPokemon, fetchPokemonSpecies, getPokemonImage } fro
 const app = express();
 const PORT = 3000;
 
-
 app.get('/pokemons', async (req, res) => {
   try {
     const pokemons = await fetchPokemons();
