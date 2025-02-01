@@ -47,63 +47,73 @@ db.serialize(() => {
 
 async function fetchPokemons() {
   const endpoint = 'https://pokeapi.co/api/v2/pokemon?limit=151';
+  const response = await axios.get(endpoint);
+  console.log('PokeAPI response:', response.status, response.statusText);
+  const data = response.data;
 
-  return new Promise((resolve, reject) => {
-    db.get('SELECT * FROM pokemons WHERE id = 1', async (err, row) => {
-      if (err) {
-        console.error('Database error (SELECT):', err.message);
-        return reject(err);
-      }
+  return await Promise.all(
+      data.results.map(async (pokemon) => {
+        const pokemonResponse = await axios.get(pokemon.url);
+        return pokemonResponse.data;
+      })
+  )
 
-      // If data exists in the database and is not stale, return it
-      if (row) {
-        console.log('Serving Pokémon list from cache');
-        return resolve(JSON.parse(row.results));
-      }
-
-      // If data is not in the database, fetch it from the API
-      let retries = 3;
-      while (retries > 0) {
-        try {
-          console.log('Making request to PokeAPI...');
-          const response = await axios.get(endpoint);
-          console.log('PokeAPI response:', response.status, response.statusText);
-          const data = response.data;
-
-          // Fetch detailed data for each Pokémon
-          const detailedPokemons = await Promise.all(
-            data.results.map(async (pokemon) => {
-              const pokemonResponse = await axios.get(pokemon.url);
-              return pokemonResponse.data;
-            })
-          );
-
-          // Insert or update the data in the database
-          db.run(
-            `INSERT INTO pokemons (id, count, next, previous, results, timestamp) 
-             VALUES (?, ?, ?, ?, ?, ?) 
-             ON CONFLICT(id) DO UPDATE SET count = excluded.count, next = excluded.next, previous = excluded.previous, results = excluded.results, timestamp = excluded.timestamp`,
-            [1, data.count, data.next, data.previous, JSON.stringify(detailedPokemons), Date.now()],
-            (err) => {
-              if (err) {
-                console.error('Database error (INSERT/UPDATE):', err.message);
-                return reject(err);
-              }
-              console.log('Pokémon list fetched and cached successfully');
-              resolve(detailedPokemons);
-            }
-          );
-          break;
-        } catch (error) {
-          console.error(`Error fetching Pokémon list from PokeAPI (${retries} retries left):`, error.message);
-          retries--;
-          if (retries === 0) {
-            reject(error);
-          }
-        }
-      }
-    });
-  });
+  // return new Promise((resolve, reject) => {
+  //   db.get('SELECT * FROM pokemons WHERE id = 1', async (err, row) => {
+  //     if (err) {
+  //       console.error('Database error (SELECT):', err.message);
+  //       return reject(err);
+  //     }
+  //
+  //     // If data exists in the database and is not stale, return it
+  //     if (row) {
+  //       console.log('Serving Pokémon list from cache');
+  //       return resolve(JSON.parse(row.results));
+  //     }
+  //
+  //     // If data is not in the database, fetch it from the API
+  //     let retries = 3;
+  //     while (retries > 0) {
+  //       try {
+  //         console.log('Making request to PokeAPI...');
+  //         const response = await axios.get(endpoint);
+  //         console.log('PokeAPI response:', response.status, response.statusText);
+  //         const data = response.data;
+  //
+  //         // Fetch detailed data for each Pokémon
+  //         const detailedPokemons = await Promise.all(
+  //           data.results.map(async (pokemon) => {
+  //             const pokemonResponse = await axios.get(pokemon.url);
+  //             return pokemonResponse.data;
+  //           })
+  //         );
+  //
+  //         // Insert or update the data in the database
+  //         db.run(
+  //           `INSERT INTO pokemons (id, count, next, previous, results, timestamp)
+  //            VALUES (?, ?, ?, ?, ?, ?)
+  //            ON CONFLICT(id) DO UPDATE SET count = excluded.count, next = excluded.next, previous = excluded.previous, results = excluded.results, timestamp = excluded.timestamp`,
+  //           [1, data.count, data.next, data.previous, JSON.stringify(detailedPokemons), Date.now()],
+  //           (err) => {
+  //             if (err) {
+  //               console.error('Database error (INSERT/UPDATE):', err.message);
+  //               return reject(err);
+  //             }
+  //             console.log('Pokémon list fetched and cached successfully');
+  //             resolve(detailedPokemons);
+  //           }
+  //         );
+  //         break;
+  //       } catch (error) {
+  //         console.error(`Error fetching Pokémon list from PokeAPI (${retries} retries left):`, error.message);
+  //         retries--;
+  //         if (retries === 0) {
+  //           reject(error);
+  //         }
+  //       }
+  //     }
+  //   });
+  // });
 }
 
 async function fetchPokemon(pokemonId) {

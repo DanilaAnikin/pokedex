@@ -8,10 +8,10 @@ const props = defineProps<{
 
 // Reactive properties
 const pokemonId = ref<number>(props.pokemon.id);
-const pokemonType = ref<TypeColorsKey>(props.pokemon.types?.[0]?.type.name as TypeColorsKey);
+const pokemonType = ref<TypeColorsKey>(props.pokemon.types[0]!.name as TypeColorsKey);
 const pokemonTypeColor = ref<string>(typeColors[pokemonType.value] as string);
 const pokemonTypesColors = ref<string[]>(
-  props.pokemon.types?.map((type) => typeColors[type.type.name as TypeColorsKey]) || []
+  props.pokemon.types.map((type) => typeColors[type.name as TypeColorsKey]) || []
 );
 
 // Watch for changes in the pokemon prop
@@ -20,9 +20,9 @@ watch(
   (newPokemon) => {
     if (!newPokemon) return;
     pokemonId.value = newPokemon.id;
-    pokemonType.value = newPokemon.types?.[0]?.type.name as TypeColorsKey;
+    pokemonType.value = newPokemon.types[0]!.name as TypeColorsKey;
     pokemonTypeColor.value = typeColors[pokemonType.value] as string;
-    pokemonTypesColors.value = newPokemon.types?.map((type) => typeColors[type.type.name as TypeColorsKey]) || [];
+    pokemonTypesColors.value = newPokemon.types.map((type) => typeColors[type.name as TypeColorsKey]) || [];
   },
   { immediate: true, deep: true }
 );
@@ -65,7 +65,7 @@ if (!props.pokemon) {
           class="w-fit h-fit shadow-inner shadow-slate-300 text-slate-100 py-0.5 px-1 rounded-full"
           :style="`background-color: ${pokemonTypesColors[index]}`"
         >
-          {{ type.type.name }}
+          {{ type.name }}
         </div>
       </div>
     </div>
