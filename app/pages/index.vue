@@ -1,26 +1,17 @@
 <script setup lang="ts">
-import axios from 'axios';
 import { ref } from 'vue';
-import { type Pokemon, type PokemonData } from '~~/types';
-import { getPokemonId } from '~~/utils/pokemon';
 
-const pokemonsResponse = await axios.get('http://localhost:3000/pokemons').catch((error) => {
-  console.error('Error fetching Pokémon list:', error);
+const {data: pokemons} = await useFetch('/api/all')
+
+if(!pokemons.value){
   throw createError({
-    statusCode: 500,
-    statusMessage: "Failed fetching Pokémon list",
-    fatal: true,
-  });
-});
-
-const pokemons = ref(pokemonsResponse?.data || []);
-
-if (pokemons.value.length === 0) {
-  console.warn('No Pokémon data found.');
+    fatal: true
+  })
 }
 
-const searchInput = ref<string>("");
+const visiblePokemons = ref(pokemons.value);
 
+const searchInput = ref<string>("");
 const handleSearch = async () => {
   const searchTerm = searchInput.value.toLowerCase();
   let filteredPokemons;
@@ -28,7 +19,7 @@ const handleSearch = async () => {
   if (searchInput.value.length === 0) {
     filteredPokemons = pokemons.value;
   } else {
-    filteredPokemons = pokemons.value.filter((pokemon: any) => {
+    filteredPokemons = pokemons.value!.filter((pokemon: any) => {
       return pokemon.name.toLowerCase().startsWith(searchTerm);
     });
   }
@@ -36,7 +27,6 @@ const handleSearch = async () => {
   visiblePokemons.value = filteredPokemons;
 };
 
-const visiblePokemons = ref<PokemonData[]>(pokemons.value);
 </script>
 
 <template>
