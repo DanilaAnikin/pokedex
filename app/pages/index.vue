@@ -4,6 +4,8 @@ import { type Pokemon } from '~~/types';
 import { getPokemonId } from '~~/utils/pokemon';
 
 const { data: pokemons } = await useAsyncData<Pokemon[]>(() => getAllPokemons())
+
+// Error handling
 if(!pokemons.value) {
   throw createError({
     statusCode: 500,
