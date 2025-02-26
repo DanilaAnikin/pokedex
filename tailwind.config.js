@@ -7,7 +7,6 @@ export default {
         "dodgeroll-gold": "#F79F1A",
         "apple-green": "#046E1B",
         "dire-wolf": "#292727",
-        
       },
     },
     fontFamily: {

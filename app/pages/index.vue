@@ -1,84 +1,112 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { getAllPokemons } from '~~/store/pokemon';
+import { type Pokemon } from '~~/types';
+import { getPokemonId } from '~~/utils/pokemon';
 
-<<<<<<< HEAD
 const { data: pokemons } = await useAsyncData<Pokemon[]>(() => getAllPokemons())
 
 // Error handling
-=======
-<<<<<<< HEAD
-const {data: pokemons} = await useFetch('/api/all')
-
-if(!pokemons.value){
-=======
-const { data: pokemons } = await useAsyncData<Pokemon[]>(() => getAllPokemons());
->>>>>>> c721886412d5f4fa294766514a8f2fbb1c9378a8
 if(!pokemons.value) {
->>>>>>> cdf95b2 (should work)
   throw createError({
-    fatal: true
-  })
+    statusCode: 500,
+    statusMessage: "Failed fetching pokemons",
+    fatal: true,
+  });
 }
 
-const visiblePokemons = ref(pokemons.value);
-
 const searchInput = ref<string>("");
-const handleSearch = async () => {
+const numberChecked = ref<boolean>(false);
+const nameChecked = ref<boolean>(true);
+const sortingOpened = ref<boolean>(false);
+
+const visiblePokemons = ref<Pokemon[]>(pokemons.value);
+
+function handleSearch() {
+  if(!pokemons.value) {
+    return;
+  }
+
   const searchTerm = searchInput.value.toLowerCase();
   let filteredPokemons;
-
-  if (searchInput.value.length === 0) {
+  if(searchInput.value.length === 0) {
     filteredPokemons = pokemons.value;
-  } else {
-    filteredPokemons = pokemons.value!.filter((pokemon: any) => {
+  } else if(numberChecked.value) {
+    filteredPokemons = pokemons.value.filter((pokemon) => {
+      const pokemonId = pokemon.url.split("/")[6];
+      return pokemonId?.startsWith(searchTerm);
+    })
+  } else if(nameChecked.value) {
+    filteredPokemons = pokemons.value.filter((pokemon) => {
       return pokemon.name.toLowerCase().startsWith(searchTerm);
-    });
+    })
+  } else {
+    filteredPokemons = pokemons.value;
   }
 
   visiblePokemons.value = filteredPokemons;
-};
-
+}
 </script>
 
 <template>
-  <main class="bg-[#DC0A2D] pb-1 h-full w-full">
-    <header>
-      <div class="flex flex-col justify-center w-full items-center">
-        <div class="flex text-white gap-6 text-4xl font-extrabold pt-5 px-6 items-center max-w-md w-full">
-          <img src="../img/pokeball.svg" alt="pokeball" class="w-9 h-9" />
-          <h1>Pokédex</h1>
-        </div>
-        <div class="pt-4 flex items-center gap-6 justify-center max-w-[420px] w-[98%]">
-          <div class="bg-white flex rounded-3xl px-4 py-2 shadow-md justify-between gap-4 items-center w-[80%]">
-            <img src="../img/search.svg" @click="handleSearch" class="w-5 h-5 cursor-pointer" />
-            <input v-model="searchInput" @keyup="handleSearch" class="w-full placeholder:text-sm placeholder:font-extrabold outline-none" type="text" placeholder="Search" id="search-input" />
-            <img v-if="searchInput !== ''" src="../img/cross.svg" @click="searchInput = ''; handleSearch()" alt="cross icon" class="h-4 w-4 cursor-pointer" id="search-close-icon" />
+    <main class="bg-[#DC0A2D] pb-1 h-full w-full">
+      <header class="">
+        <div class="flex flex-col justify-center w-full items-center">
+          <div class="flex text-white gap-6 text-4xl font-extrabold pt-5 px-6 items-center max-w-md w-full">
+            <img src="../img/pokeball.svg" alt="pokeball" class="w-9 h-9" />
+            <h1>Pokédex</h1>
+          </div>
+          <div class="pt-4 flex items-center gap-6 justify-between max-w-[420px] w-[98%]">
+            <div class="bg-white flex rounded-3xl px-4 py-2 shadow-md justify-between gap-4 items-center w-[80%]">
+              <img src="../img/search.svg" @click="handleSearch()" class="w-5 h-5" />
+              <input v-model="searchInput" @keyup="handleSearch()" class="w-full placeholder:text-sm placeholder:font-extrabold outline-none" type="text" v-on:keyup.enter="handleSearch()" placeholder="Search" id="search-input" />
+              <img v-if="searchInput !== ''" src="../img/cross.svg" @click="searchInput=''; handleSearch()" alt="cross icon" class="h-4 w-4" id="search-close-icon" />
+            </div>
+            <div class="flex flex-col items-center">
+              <div @click="sortingOpened = !sortingOpened" class="bg-white cursor-pointer rounded-full p-2 w-10 h-10">
+                <img src="../img/sorting.svg" alt="sorting icon" class="h-6 w-6" id="sort-icon" />
+              </div>
+              <div v-if="sortingOpened" class="shadow-inner shadow-slate-500 bg-white px-1 py-1 w-fit rounded-lg absolute mr-8 -mt-4 font-extrabold text-red-950">
+                <div class="flex items-center gap-2">
+                  <img @click="sortingOpened = false" src="../img/cross.svg" class="h-3 w-3 cursor-pointer">  
+                  <p class="text-sm flex justify-between items-center w-full">Sort</p>
+                </div>
+                  <div class="">
+                  <div class="flex gap-1 cursor-pointer">
+                    <input @click="numberChecked=true; nameChecked=false" type="radio" id="number" name="filters" value="number" checked>
+                    <label for="number" class="text-xs">Number</label>
+                  </div>
+                  <div class="flex gap-1 cursor-pointer">
+                    <input @click="numberChecked=false; nameChecked=true" type="radio" id="name" name="filters" value="name" checked>
+                    <label for="number" class="text-xs">Name</label>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </header>
-    <div class="flex justify-center w-full">
-    <div class="w-[80%] flex justify-center">
-      <section class="flex justify-center my-4 mx-1 rounded-xl max-w-fit w-full">
-        <div v-if="visiblePokemons.length === 0" class="p-4">
+      </header>
+      <div class="w-full flex justify-center">
+      <section class="flex justify-center my-4 mx-1 bg-white rounded-xl max-w-[680px] w-[98%]">
+        <div class="">
+          <div class="">
+
+          </div>
+        </div>
+        <div v-if="visiblePokemons.length === 0" class="">
           Pokemon not found
         </div>
         <div v-if="visiblePokemons.length > 0" class="flex flex-wrap w-full justify-center rounded-xl">
           <div
             v-for="pokemon in visiblePokemons"
-            @click="navigateTo(`/pokemon/${pokemon.id}`)"
-            class="p-1 rounded-xl max-w-[226px] min-w-[173px] w-full h-fit cursor-pointer"
+            @click="navigateTo(`./pokemon/${getPokemonId(pokemon)}`)" class="p-1 rounded-xl mt-2 max-w-[226px] w-[50%] h-fit cursor-pointer"
           >
-            <PokemonPreview :pokemon="pokemon" class="flex flex-col w-full" />
+            <PokemonPreview
+              :pokemon="pokemon"
+              class="flex flex-col w-full"
+            />
           </div>
         </div>
-      </section>
-    </div>
-<<<<<<< HEAD
-  </div>
-  </main>
+        </section>
+        </div>
+    </main>
 </template>
-=======
-  </main>
-</template>
->>>>>>> cdf95b2 (should work)

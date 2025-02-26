@@ -1,45 +1,15 @@
-import express from 'express';
-import cors from 'cors'; // Import the cors package
-import { fetchPokemons, fetchPokemon, fetchPokemonSpecies, getPokemonImage } from '../cache.js';
+import { type Pokemons } from '~~/types';
 
-const app = express();
-const PORT = 3000;
+export const getAllPokemons = async() => {
+    const MAX_POKEMON: number = 100;
+    const response: Pokemons = await $fetch(`https://pokeapi.co/api/v2/pokemon?limit=${MAX_POKEMON}`);
+    return response.results;
+}
 
-// Enable CORS for all routes
-app.use(cors());
+export const getPokemon = async(id: number) => {
+    return $fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+}
 
-// Your existing routes
-app.get('/pokemons', async (req, res) => {
-  try {
-    const pokemons = await fetchPokemons();
-    res.json(pokemons);
-  } catch (error) {
-    console.error('Error fetching Pokemons:', error);
-    res.status(500).json({ error: 'Error fetching Pokemons' });
-  }
-});
-
-app.get('/pokemon/:id', async (req, res) => {
-  const pokemonId = req.params.id;
-  try {
-    const pokemon = await fetchPokemon(pokemonId);
-    const imageUrl = getPokemonImage(pokemonId);
-    res.json({ ...pokemon, imageUrl });
-  } catch (error) {
-    res.status(500).json({ error: `Failed to fetch details for Pokémon ${pokemonId}.` });
-  }
-});
-
-app.get('/pokemon-species/:id', async (req, res) => {
-  const pokemonId = req.params.id;
-  try {
-    const species = await fetchPokemonSpecies(pokemonId);
-    res.json(species);
-  } catch (error) {
-    res.status(500).json({ error: `Failed to fetch species for Pokémon ${pokemonId}.` });
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+export const getSpecies = async(id: number) => {
+    return $fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`);
+}

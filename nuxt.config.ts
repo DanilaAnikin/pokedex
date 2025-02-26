@@ -31,13 +31,11 @@ export default defineNuxtConfig({
     "@nuxtjs/google-fonts",
     "@nuxt/icon",
     "@nuxt/image",
-    "@prisma/nuxt"
   ],
 
   googleFonts: {
     families: {
       Montserrat: true
     }
-  },
-
+  }
 })
