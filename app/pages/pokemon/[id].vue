@@ -44,7 +44,7 @@ const hexToRGB = (hex: string) => {
         <img
             src="../../img/pokedex.svg"
             alt="pokedex"
-            class="absolute top-0 right-0 opacity-15 w-[40%] max-h-[40%] bg-blend-overlay mix-blend-overlay"
+            class="absolute top-0 right-0 z-0 opacity-15 w-[40%] max-h-[40%] bg-blend-overlay mix-blend-overlay"
         >
         <header :style="`background-color: ${pokemonTypeColor}`">
             <div class="flex w-full justify-center gap-20 items-center p-6">
@@ -84,7 +84,7 @@ const hexToRGB = (hex: string) => {
                     class="w-full"
                     >
                 </div>
-                <NuxtLink :to="`/pokemon/${id !== 151 ? id + 1 : 1}`">
+                <NuxtLink :to="`/pokemon/${id !== 151 ? id + 1 : 1}`" class="relative z-10">
                     <img
                         src="../../img/chevron_right.svg"
                         alt="forward"
