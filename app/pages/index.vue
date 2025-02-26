@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
+<<<<<<< HEAD
 const {data: pokemons} = await useFetch('/api/all')
 
 if(!pokemons.value){
+=======
+const { data: pokemons } = await useAsyncData<Pokemon[]>(() => getAllPokemons());
+if(!pokemons.value) {
+>>>>>>> cdf95b2 (should work)
   throw createError({
     fatal: true
   })
@@ -63,6 +68,11 @@ const handleSearch = async () => {
         </div>
       </section>
     </div>
+<<<<<<< HEAD
   </div>
   </main>
 </template>
+=======
+  </main>
+</template>
+>>>>>>> cdf95b2 (should work)
